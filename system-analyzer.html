@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>System Analyzer - AnimeGold</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      background: linear-gradient(-45deg, #1a0033, #2d0052, #0a0a2e, #16213e);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+      font-family: 'Arial', sans-serif;
+      background-attachment: fixed;
+      color: #fff;
+      text-align: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding: 20px;
+    }
+
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: rgba(20, 20, 40, 0.85);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 152, 0, 0.3);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(255, 152, 0, 0.2);
+    }
+
+    h1 {
+      color: #ffb84d;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+      background: linear-gradient(135deg, #ff9800, #ffb84d, #ff6b00);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .video-section {
+      margin-bottom: 40px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 600px;
+      border-radius: 10px;
+      border: 2px solid rgba(255, 152, 0, 0.3);
+    }
+
+    .episodes-section {
+      margin-top: 40px;
+    }
+
+    .episodes-title {
+      color: #ffb84d;
+      font-size: 1.8em;
+      margin-bottom: 20px;
+    }
+
+    .episodes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .episode-box {
+      aspect-ratio: 1;
+      border-radius: 10px;
+      border: 2px solid rgba(255, 152, 0, 0.3);
+      background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(255, 152, 0, 0.05));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .episode-box:hover:not(.locked) {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+      border-color: #ff9800;
+    }
+
+    .episode-box.unlocked {
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      border-color: #27ae60;
+      color: #fff;
+      box-shadow: 0 0 15px rgba(39, 174, 96, 0.5);
+    }
+
+    .episode-box.active {
+      background: linear-gradient(135deg, #ff9800, #ffb84d);
+      border-color: #ff9800;
+      color: #000;
+      box-shadow: 0 0 20px rgba(255, 152, 0, 0.8);
+      transform: scale(1.05);
+    }
+
+    .episode-box.locked {
+      background: rgba(100, 100, 100, 0.3);
+      border-color: rgba(100, 100, 100, 0.5);
+      color: #999;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .lock-icon {
+      position: absolute;
+      font-size: 2em;
+      display: none;
+    }
+
+    .episode-box.locked .lock-icon {
+      display: block;
+    }
+
+    .info-box {
+      background: rgba(39, 174, 96, 0.2);
+      border: 2px solid rgba(39, 174, 96, 0.5);
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+      color: #b0ffb0;
+    }
+
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #ff9800, #ffb84d);
+      border: none;
+      border-radius: 8px;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(255, 152, 0, 0.6);
+    }
+
+    button:disabled {
+      background: #95a5a6;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    button.back {
+      background: linear-gradient(135deg, #6c757d, #495057);
+      color: #fff;
+    }
+
+    button.back:hover {
+      box-shadow: 0 6px 25px rgba(108, 117, 125, 0.6);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 152, 0, 0.2);
+      border-radius: 10px;
+      margin-top: 15px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #27ae60, #2ecc71);
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="back" onclick="window.history.back()">← Back to Earn</button>
+    
+    <h1>🔧 System Analyzer</h1>
+
+    <div class="video-section">
+      <iframe id="videoFrame" src="" allowfullscreen></iframe>
+    </div>
+
+    <div class="info-box">
+      <p>📺 Currently watching: Episode <strong id="currentEpisode">1</strong> / 30</p>
+      <p>⏱️ Keep watching to unlock the next episode!</p>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 3.33%;"></div>
+      </div>
+    </div>
+
+    <div class="episodes-section">
+      <div class="episodes-title">Episodes (30 Total)</div>
+      <div class="episodes-grid" id="episodesGrid"></div>
+    </div>
+
+    <div class="controls">
+      <button id="prevBtn" onclick="previousEpisode()">⬅️ Previous</button>
+      <button id="nextBtn" onclick="nextEpisode()">Next ➡️</button>
+    </div>
+  </div>
+
+  <script>
+    const seriesSlug = 'system-analyzer';
+    const totalEpisodes = 30;
+    let currentEpisode = parseInt(new URLSearchParams(window.location.search).get('ep')) || 1;
+    
+    // Load watched episodes from localStorage
+    const watchedKey = `${seriesSlug}_watched`;
+    let watchedEpisodes = JSON.parse(localStorage.getItem(watchedKey)) || [1];
+
+    function initializeEpisodes() {
+      const grid = document.getElementById('episodesGrid');
+      grid.innerHTML = '';
+
+      for (let i = 1; i <= totalEpisodes; i++) {
+        const box = document.createElement('div');
+        box.className = 'episode-box';
+        box.textContent = i;
+
+        if (i === currentEpisode) {
+          box.classList.add('active');
+        } else if (watchedEpisodes.includes(i) || i === 1) {
+          box.classList.add('unlocked');
+        } else if (i <= Math.max(...watchedEpisodes) + 1) {
+          box.classList.add('unlocked');
+        } else {
+          box.classList.add('locked');
+          box.innerHTML = `<span class="lock-icon">🔒</span>`;
+        }
+
+        box.onclick = () => {
+          if (!box.classList.contains('locked')) {
+            loadEpisode(i);
+          } else {
+            alert('🔒 Complete the previous episode to unlock this one!');
+          }
+        };
+
+        grid.appendChild(box);
+      }
+
+      updateButtons();
+      updateProgressBar();
+    }
+
+    function updateButtons() {
+      document.getElementById('prevBtn').disabled = currentEpisode === 1;
+      document.getElementById('nextBtn').disabled = currentEpisode === totalEpisodes;
+    }
+
+    function updateProgressBar() {
+      const progress = (currentEpisode / totalEpisodes) * 100;
+      document.getElementById('progressFill').style.width = progress + '%';
+    }
+
+    function loadEpisode(ep) {
+      currentEpisode = ep;
+      document.getElementById('currentEpisode').textContent = ep;
+      document.getElementById('videoFrame').src = `https://trimz.tv/${seriesSlug}?ep=${ep}`;
+      
+      // Mark as watched
+      if (!watchedEpisodes.includes(ep)) {
+        watchedEpisodes.push(ep);
+        localStorage.setItem(watchedKey, JSON.stringify(watchedEpisodes));
+      }
+
+      // Update URL
+      window.history.pushState({}, '', `?ep=${ep}`);
+
+      initializeEpisodes();
+      window.scrollTo(0, 0);
+    }
+
+    function nextEpisode() {
+      if (currentEpisode < totalEpisodes) {
+        loadEpisode(currentEpisode + 1);
+      }
+    }
+
+    function previousEpisode() {
+      if (currentEpisode > 1) {
+        loadEpisode(currentEpisode - 1);
+      }
+    }
+
+    // Initialize on load
+    window.addEventListener('load', () => {
+      loadEpisode(currentEpisode);
+    });
+  </script>
+</body>
+</html>
